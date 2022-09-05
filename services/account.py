@@ -1,15 +1,25 @@
-from bcrypt import hashpw, checkpw, gensalt
-
 from config.db import conn
-from models.user import users
-from schemas.user import User
+from models.account import accounts
+from schemas.account import Account
 
 
-async def insertUser(user: dict):
-    user["password"] = hashpw(user["password"].encode("utf-8"), gensalt(10))
-    await conn.execute(users.insert().values(user))
+async def insertAccount(account: dict):
+    conn.execute(accounts.insert().values(account))
 
 
-async def getUserByEmail(email: str):
-    userDB = conn.execute(users.select().where(users.c.email == email)).first()
-    return userDB
+async def getAccount(aid: str):
+    accountDB = conn.execute(accounts.select().where(accounts.c.aid == aid)).first()
+    return accountDB
+
+
+async def getAccounts(uid: str):
+    accountsDB = conn.execute(accounts.select().where(accounts.c.uid == uid)).fetchall()
+    return accountsDB
+
+
+async def updateAccount(data: dict, aid: str):
+    conn.execute(accounts.update().values(data).where(accounts.c.aid == aid))
+
+
+async def deleteAccount(aid: str):
+    conn.execute(accounts.delete().where(accounts.c.aid == aid))

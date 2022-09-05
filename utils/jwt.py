@@ -1,32 +1,31 @@
-from jwt import encode, decode, exceptions
-from datetime import datetime, timedelta
-from fastapi.responses import JSONResponse
 from os import getenv
+from datetime import datetime, timedelta
+
+from fastapi import HTTPException, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+import jwt
 
 
-def expire_date(days: int):
-    date = datetime.now()
-    new_date = date + timedelta(days)
-    return new_date
+class AuthHandler:
+    security = HTTPBearer()
 
+    def encode_token(self, uid: str):
+        payload = {
+            "uid": uid,
+            "exp": datetime.utcnow() + timedelta(days=1),
+        }
 
-def write_token(data: dict):
-    token = encode(
-        # {**data["uid"], "exp": expire_date(1)},
-        {"uid": data["uid"], "exp": expire_date(1)},
-        getenv("JWT_SECRET_KEY"),
-        "HS256",
-    )
+        token = jwt.encode(payload, getenv("JWT_SECRET_KEY"), algorithm="HS256")
+        return token
 
-    return token
+    def decode_token(self, token: str):
+        try:
+            payload = jwt.decode(token, getenv("JWT_SECRET_KEY"), algorithms=["HS256"])
+            return payload["uid"]
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=401, detail="Signature has expired")
+        except jwt.InvalidTokenError as e:
+            raise HTTPException(status_code=401, detail="Invalid token")
 
-
-def validate_token(token, output=False):
-    try:
-        if output:
-            return decode(token, key=getenv("JWT_SECRET_KEY"), algorithms=["HS256"])
-        decode(token, key=getenv("JWT_SECRET_KEY"), algorithms=["HS256"])
-    except exceptions.DecodeError:
-        return JSONResponse(content={"msg": "Invalid Token"}, status_code=401)
-    except exceptions.ExpiredSignatureError:
-        return JSONResponse(content={"msg": "Token Expired"}, status_code=401)
+    def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(security)):
+        return self.decode_token(auth.credentials)

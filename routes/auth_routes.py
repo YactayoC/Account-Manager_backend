@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Header
 from fastapi.requests import Request
-from fastapi.responses import JSONResponse, Response
-from bcrypt import hashpw, checkpw, gensalt
+from fastapi.responses import JSONResponse
+from bcrypt import checkpw
 
-from utils.jwt import write_token, validate_token
-from services.auth import insertUser, getUserByEmail
+from utils.jwt import AuthHandler
 from utils.validations_user import areValidFields, isEmailValid
+from services.auth import insertUser, getUserByEmail
 
 auth_routes = APIRouter()
+auth_handler = AuthHandler()
 
 
 @auth_routes.post("/register")
@@ -51,8 +52,8 @@ async def login_user(req: Request):
                 {"ok": False, "msg": "Incorrect email or password"}, 400
             )
 
-        token = write_token(userDB)
-        return JSONResponse({"ok": True, "token": token}, 200)
+        token = auth_handler.encode_token(userDB.uid)
+        return JSONResponse({"ok": True, "uid": userDB.uid, "token": token}, 200)
     except Exception as error:
         return JSONResponse({"ok": False, "msg": "There was an error"}, 400)
 
@@ -60,7 +61,7 @@ async def login_user(req: Request):
 @auth_routes.post("/revalidate-token")
 def revalidate_token(Authorization: str = Header()):
     token = Authorization.split(" ")[1]
-    uid = validate_token(token, True)["uid"]
+    uid = auth_handler.decode_token(token, True)
 
     if token:
         return JSONResponse({"ok": True, "uid": uid}, 400)
