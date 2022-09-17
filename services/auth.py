@@ -1,15 +1,24 @@
 from bcrypt import hashpw, checkpw, gensalt
+import uuid
+import time
 
 from config.db import conn
 from models.user import users
 from schemas.user import User
 
 
-async def insertUser(user: dict):
+def insertUser(user: dict):
+    user["uid"] = uuid.uuid4();
+    user["keyConfirm"] = int(round(time.time() * 1000))
     user["password"] = hashpw(user["password"].encode("utf-8"), gensalt(10))
-    await conn.execute(users.insert().values(user))
+    conn.execute(users.insert().values(user))
 
 
-async def getUserByEmail(email: str):
+def getUser(uid: str):
+    userDB = conn.execute(users.select().where(users.c.uid == uid)).first()
+    return userDB
+
+
+def getUserByEmail(email: str):
     userDB = conn.execute(users.select().where(users.c.email == email)).first()
     return userDB
