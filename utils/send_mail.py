@@ -3,14 +3,16 @@ import ssl
 import smtplib
 import os
 
+
 def sendMail(email_receiver: str, uid: str, fullname: str):
-    email_sender = "proyectos.yactayo@gmail.com"
+    email_sender = os.getenv("EMAIL")
     email_password = os.getenv("EMAIL_PASSWORD")
     email_receiver = email_receiver
+    url_frontend = os.getenv("URL_FRONTEND")
 
     subject = "Check your account"
     body = f"""
-        Hello {fullname}, we sent you this email so you can verify your account through this link: http://127.0.0.1:5173/auth/confirm?uid={uid}.
+        Hello {fullname}, we sent you this email so you can verify your account through this link: {url_frontend}?uid={uid}.
         If it was not you, you can ignore this email.
     """
 

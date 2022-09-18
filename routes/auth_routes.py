@@ -47,11 +47,21 @@ async def login_user(req: Request):
         if not userDB:
             return JSONResponse({"ok": False, "msg": "User not found"}, 400)
 
-        if not checkpw(user["password"].encode("utf-8"), userDB["password"].encode("utf-8")):
-            return JSONResponse({"ok": False, "msg": "Incorrect email or password"}, 400)
+        if not checkpw(
+            user["password"].encode("utf-8"), userDB["password"].encode("utf-8")
+        ):
+            return JSONResponse(
+                {"ok": False, "msg": "Incorrect email or password"}, 400
+            )
 
         if not (userDB["isConfirmed"]):
-            return JSONResponse({"ok": False, "msg": "Your account has not been confirmed, please check your inbox."}, 400)
+            return JSONResponse(
+                {
+                    "ok": False,
+                    "msg": "Your account has not been confirmed, please check your inbox.",
+                },
+                400,
+            )
 
         token = auth_handler.encode_token(userDB["uid"])
         return JSONResponse({"ok": True, "user": userDB, "token": token}, 200)
@@ -83,12 +93,18 @@ def confirm_user(uid: str):
         userDB = getUser(uid)
 
         if not (userDB):
-            return JSONResponse({"ok": False, "msg": "There was an error with this uid"}, 400)
+            return JSONResponse(
+                {"ok": False, "msg": "There was an error with this uid"}, 400
+            )
 
         if not (userDB["keyConfirm"]):
-            return JSONResponse({"ok": False, "msg": "Your account has been verified"}, 400)
+            return JSONResponse(
+                {"ok": False, "msg": "Your account has been verified"}, 400
+            )
 
         getUserUpdateConfirm(uid)
-        return JSONResponse({"ok": True, "msg": "Thanks, your account has been verified"}, 200)
+        return JSONResponse(
+            {"ok": True, "msg": "Thanks, your account has been verified"}, 200
+        )
     except:
         return JSONResponse({"ok": False, "msg": "There was an error"}, 400)

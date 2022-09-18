@@ -8,9 +8,18 @@ from utils.to_dict import object_as_dict
 
 db: Session = SessionLocal()
 
+
 def insertAccount(account: dict):
     account["aid"] = uuid.uuid4()
-    new_account = AccountModel(aid = account["aid"], uid= account["uid"], title = account["title"], description = account["description"], category = account["category"], email = account["email"], password = account["password"])
+    new_account = AccountModel(
+        aid=account["aid"],
+        uid=account["uid"],
+        title=account["title"],
+        description=account["description"],
+        category=account["category"],
+        email=account["email"],
+        password=account["password"],
+    )
     db.add(new_account)
     db.commit()
     db.refresh(new_account)
@@ -37,6 +46,9 @@ def deleteAccount(aid: str):
     db.delete(accountDB)
     db.commit()
 
+
 def searchAccount(value: str):
-    accountsDB = db.query(AccountModel).filter(AccountModel.title.like('%' + value + '%')).all()
+    accountsDB = (
+        db.query(AccountModel).filter(AccountModel.title.like("%" + value + "%")).all()
+    )
     return accountsDB
