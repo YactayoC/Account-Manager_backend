@@ -1,8 +1,9 @@
-from sqlalchemy import create_engine, MetaData
-import pymysql
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 from os import getenv
 
 engine = create_engine("mysql+pymysql://root:sebas2001@localhost:3306/account_manager")
-meta = MetaData()
-conn = engine.connect()
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 

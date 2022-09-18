@@ -1,21 +1,16 @@
-from sqlalchemy import Table, Column, UniqueConstraint
-from sqlalchemy.sql.sqltypes import Integer, String
+from sqlalchemy import Column, Integer, String, UniqueConstraint
+from config.db import Base, engine
 
-from config.db import meta, engine
+class Account(Base):
+    __tablename__ = 'accounts'
+    id = Column(Integer, primary_key=True)
+    aid = Column(String(255))
+    uid = Column(String(255))
+    title = Column(String(255), nullable=False)
+    description = Column(String(255))
+    category = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False)
+    password = Column(String(255), nullable=False)
+    UniqueConstraint("aid")
 
-accounts = Table(
-    "accounts",
-    meta,
-    Column("id", Integer, primary_key=True),
-    Column("aid", String(255)),
-    Column("uid", String(255)),
-    Column("title", String(255), nullable=False),
-    Column("description", String(255)),
-    Column("category", String(255), nullable=False),
-    Column("email", String(255), nullable=False),
-    Column("password", String(255), nullable=False),
-    UniqueConstraint("aid"),
-)
-
-
-meta.create_all(engine)
+Base.metadata.create_all(bind=engine)

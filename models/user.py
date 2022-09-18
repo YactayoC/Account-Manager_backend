@@ -1,19 +1,14 @@
-from sqlalchemy import Table, Column, UniqueConstraint
-from sqlalchemy.sql.sqltypes import Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, UniqueConstraint
+from config.db import Base, engine
 
-from config.db import meta, engine
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    uid = Column(String(255))
+    fullname = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False, unique=True)
+    password = Column(String(255), nullable=False)
+    keyConfirm = Column(String(255))
+    isConfirmed = Column(Boolean, default=False)
 
-users = Table(
-    "users",
-    meta,
-    Column("id", Integer, primary_key=True),
-    Column("uid", String(255)),
-    Column("fullname", String(255), nullable=False),
-    Column("email", String(255), nullable=False, unique=True),
-    Column("password", String(255), nullable=False),
-    Column("keyConfirm", String(255)),
-    Column("isConfirmed", Boolean, default=False),
-    UniqueConstraint("email"),
-)
-
-meta.create_all(engine)
+Base.metadata.create_all(bind=engine)
