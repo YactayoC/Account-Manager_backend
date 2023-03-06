@@ -24,6 +24,6 @@ After cloning the project you need to run the next commands
 ```
   1️⃣ => pip install -r requirements.txt
   2️⃣ => virtualenv -p python3 env
-  3️⃣ => .\env\Scripts\activate
+  3️⃣ => .\env\Scripts\activate or source .\env\Scripts\activate
   4️⃣ => uvicorn app:app
 ```
